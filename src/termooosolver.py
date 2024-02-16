@@ -1,19 +1,9 @@
 import cProfile
-from letterFrequency import letterFrequency
 from math import log
 import numpy as np
 from collections import Counter
 from dictWords import intToWord, wordToInt
 
-# Calcula a soma das frequencias relativas de cada letra distinta da palavra
-def calculate_value(word):
-    ja_usadas = []
-    value = 0
-    for i in range(0, 5):
-        if word[i] not in ja_usadas:
-            ja_usadas.append(word[i])
-            value += letterFrequency[word[i]]
-    return value
 
 # Da a lista de palavras de um arquivo
 def read_list_words(path):
@@ -21,7 +11,7 @@ def read_list_words(path):
     f = open(path, encoding="utf8")
     for i in f:
         i = (i.rstrip('\n')).lower()
-        valor = calculate_value(i)
+        valor = 0
         lista_palavras.append((i, valor))
     return lista_palavras
 
