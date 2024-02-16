@@ -2,7 +2,7 @@ import cProfile
 from math import log
 import numpy as np
 from collections import Counter
-from dictWords import intToWord, wordToInt
+from data.dictWords import intToWord, wordToInt
 
 
 # Da a lista de palavras de um arquivo
