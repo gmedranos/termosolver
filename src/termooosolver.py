@@ -366,7 +366,7 @@ def solve_dueto(lista_palavras, func_res, target):
 
         for i in list_of_lists_remaining:
             if len(i) == 1:
-                palavra_passada = i[0]
+                palavra_passada = i[0][0]
                 break
 
         if pontos == 2:
