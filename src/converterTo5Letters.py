@@ -12,3 +12,5 @@ def convertWordsListTo5Letter():
         elif len(linha) == 5 and linha[4] != '\n':
             write_file.write(linha)
     return
+
+#convertWordsListTo5Letter()

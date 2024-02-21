@@ -2,7 +2,7 @@ import cProfile
 from math import log
 import numpy as np
 from collections import Counter
-from data.dictWords import intToWord, wordToInt
+from dictWords import intToWord, wordToInt
 
 
 # Da a lista de palavras de um arquivo
@@ -186,49 +186,11 @@ def remove_impossible(lista_palavras, pretos, amarelos, verdes):
     
     return lista_palavras
 
-# Calcula a entropia pra todas as palavras da wordlist
-def calculate_all_entropy(wordlist):
-    resp = []
-    size = len(wordlist)
-    f = open("./lookUpMatrix.npy", mode='rb')
-    # Vai pra linha do arquivo que quero
-    matrix = np.load(f)
-
-    i = 0
-    for linha in matrix:
-        vet_ocorrencias = np.zeros(3**5, dtype=int)
-        # Aqui uns 9
-        
-        unique, counts = np.unique(linha, return_counts=True)
-        contado = dict(zip(unique, counts))
-
-        for k in contado:
-            vet_ocorrencias[int(k)] = contado[k]
-
-        entropy = 0
-
-        # Aqui gasta 7 sec
-        def calc_entropy(t):
-            if t != 0:
-                return t / size * log(size / t, 2)
-            else:
-                return 0
-
-        vfunc = np.vectorize(calc_entropy, otypes=[np.float32])
-        result = vfunc(vet_ocorrencias)
-        entropy = sum(result)
-
-        resp.append((intToWord[i], entropy))
-        i += 1
-    f.close()
-    resp.sort(key=lambda x: x[1], reverse=True)
-    return resp
-
 # Calcula a entropia de algumas palavras que ainda sao possiveis?
 def calculate_some_entropy(wordlist, allwords):
     resp = []
     size = len(wordlist)
-    f = open("./lookUpMatrix.npy", mode='rb')
+    f = open("./data/lookUpMatrix.npy", mode='rb')
     # Vai pra linha do arquivo que quero
     matrix = np.load(f)
 
@@ -278,6 +240,26 @@ def decode_pos(configuracao):
         cont += 1
     return resp
 
+def calculate_colors(resultado, palavra_passada):
+    verdes, amarelos, pretos = {}, {}, []
+
+    for j in range(0, 5):
+        if resultado[j] == 'A':
+            if amarelos.get(palavra_passada[j]) == None:
+                amarelos[palavra_passada[j]] = [1, j]
+            else:
+                amarelos[palavra_passada[j]][0] += 1
+                amarelos[palavra_passada[j]].append(j)
+        elif resultado[j] == 'P':
+            pretos.append((palavra_passada[j], j))
+        else:
+            if verdes.get(palavra_passada[j]) == None:
+                verdes[palavra_passada[j]] = [j]
+            else:
+                verdes[palavra_passada[j]].append(j)
+    
+    return verdes, amarelos, pretos
+
 # Solver simples de termo
 def solve_termo(lista_palavras, func_res, target):
     new_lista = []
@@ -300,26 +282,11 @@ def solve_termo(lista_palavras, func_res, target):
             break
 
         # Calcula os verdes, com uma lista de posicoes, os pretos + posicao e os amarelos com a frequencia + posicao
-        verdes, amarelos, pretos = {}, {}, []
-
-        for j in range(0, 5):
-            if resultado[j] == 'A':
-                if amarelos.get(palavra_passada[j]) == None:
-                    amarelos[palavra_passada[j]] = [1, j]
-                else:
-                    amarelos[palavra_passada[j]][0] += 1
-                    amarelos[palavra_passada[j]].append(j)
-            elif resultado[j] == 'P':
-                pretos.append((palavra_passada[j], j))
-            else:
-                if verdes.get(palavra_passada[j]) == None:
-                    verdes[palavra_passada[j]] = [j]
-                else:
-                    verdes[palavra_passada[j]].append(j)
+        
+        verdes, amarelos, pretos = calculate_colors(resultado, palavra_passada)
         
         j = 0
         
-        # Tem problema na funcao abaixo :(
         remove_impossible(lista_palavras, pretos, amarelos, verdes)
         allwords = calculate_some_entropy(lista_palavras, allwords)
 
@@ -339,46 +306,84 @@ def solve_termo(lista_palavras, func_res, target):
 
     return num_tentativas + 1
 
-def simulate(todas_palavras, simulated_words, solver):
-    ocorrencias = [0, 0, 0, 0, 0, 0, 0]
-    nao_conseguiu = []
-    for i in simulated_words:
-        print("A palavra que estou tentando acertar é: " + i)
-        tentativas = solver(todas_palavras, func_simulate, i)
-        ocorrencias[tentativas - 1] += 1
-        if tentativas == 0:
-            nao_conseguiu.append(i)
-    print("Número de vezes que acertei com 1 tentativa: " + str(ocorrencias[0]))
-    print("Número de vezes que acertei com 2 tentativa: " + str(ocorrencias[1]))
-    print("Número de vezes que acertei com 3 tentativa: " + str(ocorrencias[2]))
-    print("Número de vezes que acertei com 4 tentativa: " + str(ocorrencias[3]))
-    print("Número de vezes que acertei com 5 tentativa: " + str(ocorrencias[4]))
-    print("Número de vezes que acertei com 6 tentativa: " + str(ocorrencias[5]))
-    print("Número de vezes que não acertei : " + str(ocorrencias[6]))
-    print(nao_conseguiu)
+def merge_lists(list_of_lists):
+    for i in list_of_lists:
+        i.sort(key=lambda x: x[0])
+    resp = list_of_lists[0].copy()
 
+    for i in range(0, len(list_of_lists[0])):
+        soma = 0
+        for j in range(0, len(list_of_lists)):
+            soma += list_of_lists[j][i][1]
+        resp[i] = (resp[i][0], soma)
+
+    return resp
+
+def func_usuario_dueto(a, b):
+    resp = input("De a resposta certinho ")
+    resp = resp.split("|")
+    final = []
+    for i in resp:
+        final.append(i.split(" "))
+    for i in final:
+        i.remove("")
+    return final
+
+def solve_dueto(lista_palavras, func_res, target):
+    list_of_lists_values = []
+    list_of_lists_remaining = []
+    for i in range(0, 2):
+        list_of_lists_values.append([])
+        list_of_lists_remaining.append([])
+        for j in lista_palavras:
+            list_of_lists_values[i].append(j)
+            list_of_lists_remaining[i].append(j)
+    
+    resp = merge_lists(list_of_lists_remaining)
+    resp.sort(key=lambda x: x[1], reverse=True)
+
+    num_tentativas = -1
+    print("A proxima palavra é:" + str(resp[0][0]))
+    palavra_passada = resp[0][0]
+    for i in range(0, 7):
+        resultado = func_res(palavra_passada, target)
+        k = 0
+        pontos = 0
+        for j in resultado:
+            if j == ['V', 'V', 'V', 'V', 'V']:
+                list_of_lists_remaining[k] = [(palavra_passada, 0)]
+                pontos += 1
+            else:
+                verde, amarelo, preto = calculate_colors(j, palavra_passada)
+                remove_impossible(list_of_lists_remaining[k], preto, amarelo, verde)
+                
+            list_of_lists_values[k] = calculate_some_entropy(list_of_lists_remaining[k], list_of_lists_values[k])
+            k += 1
+
+        resp = merge_lists(list_of_lists_values)
+        resp.sort(key=lambda x: x[1], reverse=True)
+        palavra_passada = resp[0][0]
+
+        for i in list_of_lists_remaining:
+            if len(i) == 1:
+                palavra_passada = i[0]
+                break
+
+        if pontos == 2:
+            break
+
+        num_tentativas += 1
+        print("A proxima palavra é:" + str(palavra_passada))
+
+    print("Gastei " + str(num_tentativas) + " tentativas")
     return
 
-lista = read_list_words('./WordList5Letter.txt')
+
+lista = read_list_words('./data/WordList5Letter.txt')
 lista.sort(key=lambda x: x[1], reverse=True)
-lista_simulate = ["capaz", "velho", 'conto']
-b = 'arroz'.count("r")
 
-#lista = calculate_all_entropy(lista)
-#lista.sort(key=lambda x: x[1], reverse=True)
-
-#lista_simulate = []
-
-for i in lista:
-    lista_simulate.append(i[0])
-
-lista = calculate_all_entropy(lista)
+lista = calculate_some_entropy(lista, lista)
 
 lista = list(dict.fromkeys(lista))
-solve_termo(lista, func_usuario, None) 
-#simulate(lista, lista_simulate, solve_termo)
-    
-#cProfile.run('calculate_all_entropy(lista)')
-#cProfile.run('calculate_some_entropy(lista[:50], lista)')
-#calculate_all_entropy(lista)
+solve_dueto(lista, func_usuario_dueto, None)
     
