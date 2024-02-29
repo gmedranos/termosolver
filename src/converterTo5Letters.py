@@ -1,7 +1,7 @@
 def convertWordsListTo5Letter():
     path_read = './data/WordList.txt'
     path_write = './data/WordList5Letter.txt'
-    num_linhas = 261798
+    num_linhas = 261799
 
     read_file = open(path_read, encoding="utf8")
     write_file = open(path_write, 'w')

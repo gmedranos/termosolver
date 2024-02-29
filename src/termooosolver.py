@@ -326,15 +326,18 @@ def func_usuario_dueto(a, b):
     for i in resp:
         final.append(i.split(" "))
     for i in final:
-        i.remove("")
+        if "" in i:
+            i.remove("")
     return final
 
 def solve_dueto(lista_palavras, func_res, target):
     list_of_lists_values = []
     list_of_lists_remaining = []
+    nao_feitas = []
     for i in range(0, 2):
         list_of_lists_values.append([])
         list_of_lists_remaining.append([])
+        nao_feitas.append(i)
         for j in lista_palavras:
             list_of_lists_values[i].append(j)
             list_of_lists_remaining[i].append(j)
@@ -342,27 +345,30 @@ def solve_dueto(lista_palavras, func_res, target):
     resp = merge_lists(list_of_lists_remaining)
     resp.sort(key=lambda x: x[1], reverse=True)
 
-    num_tentativas = -1
+    num_tentativas = 0
     print("A proxima palavra é:" + str(resp[0][0]))
     palavra_passada = resp[0][0]
+    pontos = 0
     for i in range(0, 7):
         resultado = func_res(palavra_passada, target)
-        k = 0
-        pontos = 0
-        for j in resultado:
-            if j == ['V', 'V', 'V', 'V', 'V']:
-                list_of_lists_remaining[k] = [(palavra_passada, 0)]
+        j = 0
+        for k in nao_feitas:
+            if resultado[j] == ['V', 'V', 'V', 'V', 'V']:
+                list_of_lists_remaining[k] = [(palavra_passada, 0), (palavra_passada, 0)]
                 pontos += 1
+                nao_feitas.remove(k)
+
             else:
-                verde, amarelo, preto = calculate_colors(j, palavra_passada)
+                verde, amarelo, preto = calculate_colors(resultado[j], palavra_passada)
                 remove_impossible(list_of_lists_remaining[k], preto, amarelo, verde)
                 
             list_of_lists_values[k] = calculate_some_entropy(list_of_lists_remaining[k], list_of_lists_values[k])
-            k += 1
+            j += 1
 
         resp = merge_lists(list_of_lists_values)
         resp.sort(key=lambda x: x[1], reverse=True)
         palavra_passada = resp[0][0]
+
 
         for i in list_of_lists_remaining:
             if len(i) == 1:
@@ -370,6 +376,7 @@ def solve_dueto(lista_palavras, func_res, target):
                 break
 
         if pontos == 2:
+            num_tentativas += 1
             break
 
         num_tentativas += 1
@@ -386,4 +393,3 @@ lista = calculate_some_entropy(lista, lista)
 
 lista = list(dict.fromkeys(lista))
 solve_dueto(lista, func_usuario_dueto, None)
-    

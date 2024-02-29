@@ -10,8 +10,8 @@ import numpy as np
 
 # Cria um arquivo txt com as configuracoes
 def create_file():
-    wordlist = read_list_words("./WordList5Letter.txt")
-    f = open("./configuracoes.txt", mode='w')
+    wordlist = read_list_words("./data/WordList5Letter.txt")
+    f = open("./data/configuracoes.txt", mode='w')
     f.write("     ")
     for i in wordlist:
         f.write(" " + i[0])
@@ -29,9 +29,9 @@ def create_file():
 
 # Cria uma matriz de numpy com as configuracoes
 def create_numpy_matrix():
-    wordlist = read_list_words("./WordList5Letter.txt")
-    f = open("./lookUpMatrix.npy", mode='wb')
-    array = np.zeros((5481, 5481), dtype=np.uint8)
+    wordlist = read_list_words("./data/WordList5Letter.txt")
+    f = open("./data/lookUpMatrix.npy", mode='wb')
+    array = np.zeros((5482, 5482), dtype=np.uint8)
     x = 0
     for i in wordlist:
         y = 0
@@ -47,8 +47,8 @@ def create_numpy_matrix():
 
 # Cria os dicionarios do dictWords.py
 def create_dicts():
-    wordlist = read_list_words("./WordList5Letter.txt")
-    f = open("./dictWords.py", mode='w')
+    wordlist = read_list_words("./data/WordList5Letter.txt")
+    f = open("./src/dictWords.py", mode='w')
     f.write("# Vou guardar 2 dicionarios aqui, um que converte uma palavra pra uma posicao na matriz.")
     f.write("\n")
     f.write('# E um que pega uma posicao e retorna a palavra')
