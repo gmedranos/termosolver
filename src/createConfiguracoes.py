@@ -36,8 +36,10 @@ def create_numpy_matrix():
     for i in wordlist:
         y = 0
         for j in wordlist:
-            padrao = func_simulate(i[0], j[0])
-            num = decode_pos(padrao)
+            lista_palavra = []
+            lista_palavra.append(j[0])
+            padrao = func_simulate(i[0], lista_palavra)
+            num = decode_pos(padrao[0])
             array[x][y] = num
             y += 1
         x += 1
@@ -80,5 +82,6 @@ def create_dicts():
     return
 
 #create_file()
-#create_numpy_matrix()
+
 #create_dicts()
+create_numpy_matrix()

@@ -272,52 +272,6 @@ def calculate_colors(resultado, palavra_passada):
     
     return verdes, amarelos, pretos
 
-# Solver simples de termo
-def solve_termo(lista_palavras, func_res, target):
-    new_lista = []
-
-    for i in lista_palavras:
-        new_lista.append(i)
-
-    allwords = lista_palavras
-    lista_palavras = new_lista
-
-    num_tentativas = -1
-    print("A primeira palavra é:" + lista_palavras[0][0])
-    palavra_passada = allwords[0][0]
-    for i in range(0, 6):
-        resultado = func_res(palavra_passada, target)
-        # Aqui teria que verificar se o resultado ta formatado certo
-
-        if resultado == ['V', 'V', 'V', 'V', 'V']:
-            num_tentativas = i
-            break
-
-        # Calcula os verdes, com uma lista de posicoes, os pretos + posicao e os amarelos com a frequencia + posicao
-        
-        verdes, amarelos, pretos = calculate_colors(resultado, palavra_passada)
-        
-        j = 0
-        
-        remove_impossible(lista_palavras, pretos, amarelos, verdes)
-        allwords = calculate_some_entropy(lista_palavras, allwords)
-
-
-        if len(lista_palavras) > 2:
-            palavra_passada = allwords[0][0]
-
-        else:
-            palavra_passada = lista_palavras[0][0]
-        
-        print("A proxima palavra é " + palavra_passada)
-
-    if num_tentativas != -1:
-        print("Foram " + str(num_tentativas + 1) + " tentativas.")
-    else:
-        print("Não consegui acertar")
-
-    return num_tentativas + 1
-
 def merge_lists(list_of_lists):
     for i in list_of_lists:
         i.sort(key=lambda x: x[0])
@@ -331,8 +285,8 @@ def merge_lists(list_of_lists):
 
     return resp
 
-def func_usuario_dueto(a, b):
-    resp = input("De a resposta certinho ")
+def func_usuario_nueto(a, b):
+    resp = input("De a resposta onde P = Preto, A = Amarelo, V = Verde, da forma PALAVRA | PALAVRA | ... ")
     resp = resp.split("|")
     final = []
     for i in resp:
@@ -395,14 +349,28 @@ def solve_nueto(lista_palavras, func_res, targets, tipo_jogo):
         print("A proxima palavra é:" + str(palavra_passada))
 
     print("Gastei " + str(num_tentativas) + " tentativas")
-    return
+    return num_tentativas + 1
 
 
-lista = read_list_words('./data/WordList5Letter.txt')
-lista.sort(key=lambda x: x[1], reverse=True)
+if __name__ == '__main__':
+    lista = read_list_words('./data/WordList5Letter.txt')
+    lista.sort(key=lambda x: x[1], reverse=True)
+    lista = calculate_some_entropy(lista, lista)
+    lista = list(dict.fromkeys(lista))
+    
+    tipo_jogo = input("Entre o tipo de jogo(1 = termo, 2 = dueto, 4 = quarteto): ")
 
-lista = calculate_some_entropy(lista, lista)
-
-lista = list(dict.fromkeys(lista))
-jogo = Jogo(1, 6)
-solve_nueto(lista, func_usuario, None, jogo)
+    match tipo_jogo:
+        case '1':
+            jogo = Jogo(1, 6)
+            func = func_usuario
+        case '2':
+            jogo = Jogo(2, 7)
+            func = func_usuario_nueto
+        case '4':
+            jogo = Jogo(4, 9)
+            func = func_usuario_nueto
+        case _:
+            raise(SyntaxError)
+        
+    solve_nueto(lista, func, None, jogo)
