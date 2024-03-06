@@ -1,14 +1,17 @@
-from termooosolver import func_simulate, read_list_words, calculate_some_entropy, solve_termo
+from termooosolver import func_simulate, read_list_words, calculate_some_entropy, solve_termo, solve_dueto
 
 def simulate(todas_palavras, simulated_words, solver):
     ocorrencias = [0, 0, 0, 0, 0, 0, 0]
     nao_conseguiu = []
     for i in simulated_words:
         print("A palavra que estou tentando acertar é: " + i)
-        tentativas = solver(todas_palavras, func_simulate, i)
+        lista_palavra = []
+        lista_palavra.append(i)
+        tentativas = solver(todas_palavras, func_simulate, lista_palavra)
         ocorrencias[tentativas - 1] += 1
         if tentativas == 0:
             nao_conseguiu.append(i)
+
     print("Número de vezes que acertei com 1 tentativa: " + str(ocorrencias[0]))
     print("Número de vezes que acertei com 2 tentativa: " + str(ocorrencias[1]))
     print("Número de vezes que acertei com 3 tentativa: " + str(ocorrencias[2]))
@@ -20,7 +23,7 @@ def simulate(todas_palavras, simulated_words, solver):
 
     return
 
-def run_simulation():
+def run_simulation_termo():
     lista = read_list_words('./data/WordList5Letter.txt')
     lista.sort(key=lambda x: x[1], reverse=True)
     lista_simulate = [ ]
@@ -31,6 +34,5 @@ def run_simulation():
 
     lista = list(dict.fromkeys(lista))
 
-    simulate(lista, lista_simulate, solve_termo)
+    simulate(lista, lista_simulate, solve_dueto)
 
-run_simulation()

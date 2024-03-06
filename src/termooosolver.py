@@ -4,6 +4,11 @@ import numpy as np
 from collections import Counter
 from dictWords import intToWord, wordToInt
 
+class Jogo:
+    def __init__(self, palavras, tentativas):
+        self.palavras = palavras
+        self.tentativas = tentativas
+        
 
 # Da a lista de palavras de um arquivo
 def read_list_words(path):
@@ -66,31 +71,38 @@ def remove_black(lista_palavras, letra):
     return count
 
 def func_usuario(new_word, target):
-    return input("Entre o resultado da palavra passada (P = Preto, A = Amarelo, V = Verde), na forma X X X X X\n").split(" ")
+    entrada = input("Entre o resultado da palavra passada (P = Preto, A = Amarelo, V = Verde), na forma X X X X X\n").split(" ")
+    resp = []
+    resp.append(entrada)
+    return resp
 
 # Dado uma palavra nova e um target, calcula qual o resultado deveria ser
-def func_simulate(new_word, target):
-    new_word = list(new_word)
-    target = list(target)
-    result = ['', '', '', '', '']
-    # Primeiro vamos ver se tem um verde
-    for i in range(0, 5):
-        if new_word[i] == target[i]:
-            result[i] = 'V'
-            target[i] = '-'
-            new_word[i] = '-'
+def func_simulate(word, targets):
+    resp = []
+    for k in range(0, len(targets)):
+        # Primeiro vamos ver se tem um verde
+        new_target = list(targets[k])
+        new_word = list(word)
+        result = ['', '', '', '', '']
+        for i in range(0, 5):
+            if new_word[i] == new_target[i]:
+                result[i] = 'V'
+                new_target[i] = '-'
+                new_word[i] = '-' # Atauliza para marcar que aquele foi processado
+        
+        i = 0
+        # Depois verifica os amarelos e os pretos
+        for i in range(0, 5):
+            if new_word[i] != '-' and new_word[i] in new_target:
+                result[i] = 'A'
+                new_target[new_target.index(new_word[i])] = '-'
+                new_word[i] = '-'
+            elif new_word[i] != '-':
+                result[i] = 'P'
+        
+        resp.append(result)
     
-    i = 0
-    for i in range(0, 5):
-        if new_word[i] != '-' and new_word[i] in target:
-            result[i] = 'A'
-            target[target.index(new_word[i])] = '-'
-            new_word[i] = '-'
-        elif new_word[i] != '-':
-            result[i] = 'P'
-
-    
-    return (result)
+    return (resp)
 
 # Remove 
 def remove_duplicates(lista_palavras, letra, ocorrencia):
@@ -330,11 +342,11 @@ def func_usuario_dueto(a, b):
             i.remove("")
     return final
 
-def solve_dueto(lista_palavras, func_res, target):
+def solve_nueto(lista_palavras, func_res, targets, tipo_jogo):
     list_of_lists_values = []
     list_of_lists_remaining = []
     nao_feitas = []
-    for i in range(0, 2):
+    for i in range(0, tipo_jogo.palavras):
         list_of_lists_values.append([])
         list_of_lists_remaining.append([])
         nao_feitas.append(i)
@@ -349,8 +361,8 @@ def solve_dueto(lista_palavras, func_res, target):
     print("A proxima palavra é:" + str(resp[0][0]))
     palavra_passada = resp[0][0]
     pontos = 0
-    for i in range(0, 7):
-        resultado = func_res(palavra_passada, target)
+    for i in range(0, tipo_jogo.tentativas):
+        resultado = func_res(palavra_passada, targets)
         j = 0
         for k in nao_feitas:
             if resultado[j] == ['V', 'V', 'V', 'V', 'V']:
@@ -375,7 +387,7 @@ def solve_dueto(lista_palavras, func_res, target):
                 palavra_passada = i[0][0]
                 break
 
-        if pontos == 2:
+        if pontos == jogo.palavras:
             num_tentativas += 1
             break
 
@@ -392,4 +404,5 @@ lista.sort(key=lambda x: x[1], reverse=True)
 lista = calculate_some_entropy(lista, lista)
 
 lista = list(dict.fromkeys(lista))
-solve_dueto(lista, func_usuario_dueto, None)
+jogo = Jogo(1, 6)
+solve_nueto(lista, func_usuario, None, jogo)
