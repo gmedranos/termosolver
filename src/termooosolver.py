@@ -318,11 +318,12 @@ def solve_nueto(lista_palavras, func_res, targets, tipo_jogo):
     for i in range(0, tipo_jogo.tentativas):
         resultado = func_res(palavra_passada, targets)
         j = 0
+        tenho_remover = []
         for k in nao_feitas:
             if resultado[j] == ['V', 'V', 'V', 'V', 'V']:
                 list_of_lists_remaining[k] = [(palavra_passada, 0), (palavra_passada, 0)]
                 pontos += 1
-                nao_feitas.remove(k)
+                tenho_remover.append(k)
 
             else:
                 verde, amarelo, preto = calculate_colors(resultado[j], palavra_passada)
@@ -330,6 +331,9 @@ def solve_nueto(lista_palavras, func_res, targets, tipo_jogo):
                 
             list_of_lists_values[k] = calculate_some_entropy(list_of_lists_remaining[k], list_of_lists_values[k])
             j += 1
+
+        for k in tenho_remover:
+            nao_feitas.remove(k)
 
         resp = merge_lists(list_of_lists_values)
         resp.sort(key=lambda x: x[1], reverse=True)
@@ -360,17 +364,17 @@ if __name__ == '__main__':
     
     tipo_jogo = input("Entre o tipo de jogo(1 = termo, 2 = dueto, 4 = quarteto): ")
 
-    match tipo_jogo:
-        case '1':
+    # To com o python desatualizado
+    if tipo_jogo == '1':
             jogo = Jogo(1, 6)
             func = func_usuario
-        case '2':
+    elif tipo_jogo == '2':
             jogo = Jogo(2, 7)
             func = func_usuario_nueto
-        case '4':
+    elif tipo_jogo == '4':
             jogo = Jogo(4, 9)
             func = func_usuario_nueto
-        case _:
+    else:
             raise(SyntaxError)
         
     solve_nueto(lista, func, None, jogo)
