@@ -1,13 +1,11 @@
-from termooosolver import func_simulate, read_list_words, calculate_some_entropy, solve_termo, solve_dueto
+from termooosolver import func_simulate, read_list_words, calculate_some_entropy, solve_nueto, Jogo
 
-def simulate(todas_palavras, simulated_words, solver):
+def simulate_termo(todas_palavras, simulated_words, solver):
     ocorrencias = [0, 0, 0, 0, 0, 0, 0]
     nao_conseguiu = []
     for i in simulated_words:
         print("A palavra que estou tentando acertar é: " + i)
-        lista_palavra = []
-        lista_palavra.append(i)
-        tentativas = solver(todas_palavras, func_simulate, lista_palavra)
+        tentativas = solver(todas_palavras, func_simulate, [i], Jogo(1, 6))
         ocorrencias[tentativas - 1] += 1
         if tentativas == 0:
             nao_conseguiu.append(i)
@@ -31,8 +29,10 @@ def run_simulation_termo():
         lista_simulate.append(i[0])
 
     lista = calculate_some_entropy(lista, lista)
-
     lista = list(dict.fromkeys(lista))
+    simulate_termo(lista, lista_simulate, solve_nueto)
 
-    simulate(lista, lista_simulate, solve_dueto)
+    return
 
+if __name__ == '__main__':
+    run_simulation_termo()

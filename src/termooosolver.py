@@ -161,9 +161,9 @@ def remove_impossible(lista_palavras, pretos, amarelos, verdes):
         if amarelos.get(pretos[j][0]) != None or verdes.get(pretos[j][0]) != None:
             # Esse if ta meio estranho, mas nao quero demorar muito pra terminar D:
             if amarelos.get(pretos[j][0]) != None and duplicates.get(pretos[j][0]) == None:
-                duplicates[pretos[j][0]] = len(amarelos[pretos[j][0]])
+                duplicates[pretos[j][0]] = len(amarelos[pretos[j][0]]) + 1
 
-            elif verdes.get(pretos[j][0]) != None and duplicates.get(pretos[j][0]) == None:\
+            elif verdes.get(pretos[j][0]) != None and duplicates.get(pretos[j][0]) == None:
                 duplicates[pretos[j][0]] = len(verdes[pretos[j][0]]) + 1
 
             elif amarelos.get(pretos[j][0]) != None and duplicates.get(pretos[j][0]) != None:
@@ -356,15 +356,24 @@ def solve_nueto(lista_palavras, func_res, targets, tipo_jogo):
                 palavra_passada = i[0][0]
                 break
 
-        if pontos == jogo.palavras:
+        if len(nao_feitas) == 1:
+            for i in list_of_lists_remaining:
+                if len(i) == 2:
+                    palavra_passada = i[0][0]
+                    break
+
+        if pontos == tipo_jogo.palavras:
             num_tentativas += 1
             break
 
         num_tentativas += 1
         print("A proxima palavra é:" + str(palavra_passada))
 
+    if len(nao_feitas) != 0:
+        num_tentativas = 0
     print("Gastei " + str(num_tentativas) + " tentativas")
-    return num_tentativas + 1
+    
+    return num_tentativas
 
 
 if __name__ == '__main__':
