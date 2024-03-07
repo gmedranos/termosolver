@@ -330,6 +330,7 @@ def solve_nueto(lista_palavras, func_res, targets, tipo_jogo):
                 list_of_lists_remaining[k] = [(palavra_passada, 0), (palavra_passada, 0)]
                 pontos += 1
                 tenho_remover.append(k)
+                targets.remove(palavra_passada)
 
             # Calcula os dicionarios pra remover as que nao podem ser
             else:
@@ -344,6 +345,7 @@ def solve_nueto(lista_palavras, func_res, targets, tipo_jogo):
         for k in tenho_remover:
             nao_feitas.remove(k)
 
+
         # Junta as entropias e pega a palavra nova
         resp = merge_lists(list_of_lists_values)
         resp.sort(key=lambda x: x[1], reverse=True)
@@ -357,10 +359,9 @@ def solve_nueto(lista_palavras, func_res, targets, tipo_jogo):
                 break
 
         if len(nao_feitas) == 1:
-            for i in list_of_lists_remaining:
-                if len(i) == 2:
-                    palavra_passada = i[0][0]
-                    break
+            if len(list_of_lists_remaining[nao_feitas[0]]) == 2:
+                palavra_passada = list_of_lists_remaining[nao_feitas[0]][0][0]
+
 
         if pontos == tipo_jogo.palavras:
             num_tentativas += 1
