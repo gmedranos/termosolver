@@ -300,6 +300,8 @@ def solve_nueto(lista_palavras, func_res, targets, tipo_jogo):
     list_of_lists_values = []
     list_of_lists_remaining = []
     nao_feitas = []
+    # Cria duas listas de listas, uma que representa as palavras faltantes pra cada coluna
+    # E outra pro valor de entropia pra cada coluna
     for i in range(0, tipo_jogo.palavras):
         list_of_lists_values.append([])
         list_of_lists_remaining.append([])
@@ -308,6 +310,7 @@ def solve_nueto(lista_palavras, func_res, targets, tipo_jogo):
             list_of_lists_values[i].append(j)
             list_of_lists_remaining[i].append(j)
     
+    # Junta as listas somando o valor das entropias pra cada
     resp = merge_lists(list_of_lists_remaining)
     resp.sort(key=lambda x: x[1], reverse=True)
 
@@ -315,31 +318,39 @@ def solve_nueto(lista_palavras, func_res, targets, tipo_jogo):
     print("A proxima palavra é:" + str(resp[0][0]))
     palavra_passada = resp[0][0]
     pontos = 0
+
+
     for i in range(0, tipo_jogo.tentativas):
         resultado = func_res(palavra_passada, targets)
         j = 0
         tenho_remover = []
         for k in nao_feitas:
+            # Verifica se acertei a palavra e remove a palavra
             if resultado[j] == ['V', 'V', 'V', 'V', 'V']:
                 list_of_lists_remaining[k] = [(palavra_passada, 0), (palavra_passada, 0)]
                 pontos += 1
                 tenho_remover.append(k)
 
+            # Calcula os dicionarios pra remover as que nao podem ser
             else:
                 verde, amarelo, preto = calculate_colors(resultado[j], palavra_passada)
                 remove_impossible(list_of_lists_remaining[k], preto, amarelo, verde)
-                
+
+            # Recalcula a entropia    
             list_of_lists_values[k] = calculate_some_entropy(list_of_lists_remaining[k], list_of_lists_values[k])
             j += 1
 
+        # Remove as que eu tenho que remover (Eu to removendo aqui porque se nao criava um bug)
         for k in tenho_remover:
             nao_feitas.remove(k)
 
+        # Junta as entropias e pega a palavra nova
         resp = merge_lists(list_of_lists_values)
         resp.sort(key=lambda x: x[1], reverse=True)
         palavra_passada = resp[0][0]
 
 
+        # Verifica se ja tenho certeza de alguma palavra e chuta ela
         for i in list_of_lists_remaining:
             if len(i) == 1:
                 palavra_passada = i[0][0]
