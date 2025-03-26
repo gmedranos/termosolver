@@ -1,0 +1,8 @@
+Número de vezes que acertei com 1 tentativa: 1
+Número de vezes que acertei com 2 tentativa: 40
+Número de vezes que acertei com 3 tentativa: 1648
+Número de vezes que acertei com 4 tentativa: 3023
+Número de vezes que acertei com 5 tentativa: 728
+Número de vezes que acertei com 6 tentativa: 43
+Número de vezes que não acertei : 1
+Errei: ['jazes']
