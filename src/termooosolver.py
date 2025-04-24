@@ -330,7 +330,8 @@ def solve_nueto(lista_palavras, func_res, targets, tipo_jogo):
                 list_of_lists_remaining[k] = [(palavra_passada, 0), (palavra_passada, 0)]
                 pontos += 1
                 tenho_remover.append(k)
-                targets.remove(palavra_passada)
+                if (targets is not None):
+                    targets.remove(palavra_passada)
 
             # Calcula os dicionarios pra remover as que nao podem ser
             else:
